@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+service Stream {
+    rpc HelloWorld(stream People) returns (stream HelloMessage) {}
+}
+
+message People {
+    string name = 1;
+    string location = 2;
+    int64 distance_washington_dc = 3;
+}
+
+message HelloMessage {
+    string message = 1;
+}
