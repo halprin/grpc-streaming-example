@@ -17,7 +17,9 @@ func main() {
 	streamServerImplementation := StreamServerImplementation{}
 	pb.RegisterStreamServer(grpcServer, streamServerImplementation)
 
-	err := grpcServer.Serve(listener)
+	log.Println("Server starting up on port 8000")
+
+	err = grpcServer.Serve(listener)
 	if err != nil {
 		log.Fatal("Serving the gRPC server on the port failed")
 	}
