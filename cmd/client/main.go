@@ -8,7 +8,6 @@ import (
 	"io"
 	"log"
 	"strconv"
-	"time"
 )
 
 func main() {
@@ -32,7 +31,7 @@ func main() {
 	go streamListener(stream)
 
 	//send the person details
-	_ = sendPersonDetails(stream)
+	_ = continuallyReadPeople(stream)
 
 	log.Println("Closing down the client")
 }
@@ -54,28 +53,25 @@ func streamListener(stream pb.Stream_HelloWorldClient) {
 	}
 }
 
-func sendPersonDetails(stream pb.Stream_HelloWorldClient) error {
-	personName, personLocation, personDistanceString := readDetailsFromConsole()
-	personDistance, _ := strconv.ParseInt(personDistanceString, 10, 64)
+func continuallyReadPeople(stream pb.Stream_HelloWorldClient) error {
+	for {
+		person, err := getNextPerson()
+		if err != nil {
+			log.Println("Failed to get a person, done sending people")
+			break
+		}
 
-	person := pb.People{
-		Name:                 personName,
-		Location:             personLocation,
-		DistanceWashingtonDc: personDistance,
+		log.Printf("Sending a person to the server: %s", person.String())
+
+		err = stream.Send(person)
+		if err != nil {
+			log.Println("Failed to send person to server")
+			return err
+		}
 	}
-
-	log.Printf("Sending a person to the server: %s", person.String())
-
-	err := stream.Send(&person)
-	if err != nil {
-		log.Println("Failed to send person to server")
-		return err
-	}
-
-	time.Sleep(10 * time.Second)
 
 	log.Println("Closing down the sending of people")
-	err = stream.CloseSend()
+	err := stream.CloseSend()
 	if err != nil {
 		log.Println("Failed to finish the stream")
 	}
@@ -83,7 +79,29 @@ func sendPersonDetails(stream pb.Stream_HelloWorldClient) error {
 	return nil
 }
 
-func readDetailsFromConsole() (string, string, string) {
+//func sendPersonDetails(stream pb.Stream_HelloWorldClient) error {
+//
+//}
+
+func getNextPerson() (*pb.People, error) {
+	personName, personLocation, personDistanceString, err := readDetailsFromConsole()
+	if err != nil {
+		return nil, err
+	}
+
+	personDistance, err := strconv.ParseInt(personDistanceString, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.People{
+		Name:                 personName,
+		Location:             personLocation,
+		DistanceWashingtonDc: personDistance,
+	}, nil
+}
+
+func readDetailsFromConsole() (string, string, string, error) {
 	log.Println("Enter a name, location, and distance")
 
 	var name string
@@ -93,8 +111,8 @@ func readDetailsFromConsole() (string, string, string) {
 	_, err := fmt.Scanln(&name, &location, &distance)
 	if err != nil {
 		log.Println("Unable to read stuff from the console")
-		return "", "", ""
+		return "", "", "", err
 	}
 
-	return name, location, distance
+	return name, location, distance, nil
 }
