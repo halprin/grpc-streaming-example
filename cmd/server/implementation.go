@@ -2,17 +2,17 @@ package main
 
 import (
 	"fmt"
-	"github.com/halprin/grpc-streaming-example/grpc"
+	"github.com/halprin/grpc-streaming-example/pb"
 	"io"
 	"log"
 	"time"
 )
 
-type streamServer struct {
-	grpc.UnimplementedStreamServer
+type StreamServerImplementation struct {
+	pb.UnimplementedStreamServer
 }
 
-func (receiver *streamServer) HelloWorld(stream grpc.Stream_HelloWorldServer) error {
+func (receiver StreamServerImplementation) HelloWorld(stream pb.Stream_HelloWorldServer) error {
 	for {
 		//repeatedly get a message from a client
 		receivedPerson, err := stream.Recv()
@@ -32,7 +32,7 @@ func (receiver *streamServer) HelloWorld(stream grpc.Stream_HelloWorldServer) er
 		personDistanceToDc := receivedPerson.GetDistanceWashingtonDc()
 
 		//construct our response
-		responseMessage := grpc.HelloMessage{
+		responseMessage := pb.HelloMessage{
 			Message: generateResponseMessage(personName, personLocation, personDistanceToDc),
 		}
 
@@ -51,7 +51,7 @@ func generateResponseMessage(name string, location string, distance int64) strin
 	return fmt.Sprintf("Hello World, %s!  You are located in %s which is %d miles from Washington D.C.", name, location, distance)
 }
 
-func sendResponseToStream(stream grpc.Stream_HelloWorldServer, message *grpc.HelloMessage) error {
+func sendResponseToStream(stream pb.Stream_HelloWorldServer, message *pb.HelloMessage) error {
 	err := stream.Send(message)
 	if err != nil {
 		//something happened while trying to send a response
@@ -62,7 +62,7 @@ func sendResponseToStream(stream grpc.Stream_HelloWorldServer, message *grpc.Hel
 	return nil
 }
 
-func waitAndSendResponse(stream grpc.Stream_HelloWorldServer, message *grpc.HelloMessage) {
+func waitAndSendResponse(stream pb.Stream_HelloWorldServer, message *pb.HelloMessage) {
 	time.Sleep(5 * time.Second)
 	_ = sendResponseToStream(stream, message)
 }

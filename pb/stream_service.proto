@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option go_package = "github.com/halprin/grpc-streaming-example/grpc";
+option go_package = "github.com/halprin/pb-streaming-example/pb";
 
 service Stream {
     rpc HelloWorld(stream People) returns (stream HelloMessage) {}
