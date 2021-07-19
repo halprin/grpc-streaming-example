@@ -2,10 +2,12 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"github.com/halprin/grpc-streaming-example/pb"
 	"google.golang.org/grpc"
 	"io"
 	"log"
+	"strconv"
 	"time"
 )
 
@@ -39,9 +41,11 @@ func streamListener(stream pb.Stream_HelloWorldClient) {
 	for {
 		receivedMessage, err := stream.Recv()
 		if err == io.EOF {
+			//the server closed the connection, so just return to finish this separate listener
 			log.Println("Server is done, wrapping up")
 			return
 		} else if err != nil {
+			//an actual error happened, return because no need to keep listening
 			log.Println("There was an error receiving a message")
 			return
 		}
@@ -51,10 +55,13 @@ func streamListener(stream pb.Stream_HelloWorldClient) {
 }
 
 func sendPersonDetails(stream pb.Stream_HelloWorldClient) error {
+	personName, personLocation, personDistanceString := readDetailsFromConsole()
+	personDistance, _ := strconv.ParseInt(personDistanceString, 10, 64)
+
 	person := pb.People{
-		Name:                 "halprin",
-		Location:             "The Internet",
-		DistanceWashingtonDc: int64(74),
+		Name:                 personName,
+		Location:             personLocation,
+		DistanceWashingtonDc: personDistance,
 	}
 
 	log.Printf("Sending a person to the server: %s", person.String())
@@ -74,4 +81,20 @@ func sendPersonDetails(stream pb.Stream_HelloWorldClient) error {
 	}
 
 	return nil
+}
+
+func readDetailsFromConsole() (string, string, string) {
+	log.Println("Enter a name, location, and distance")
+
+	var name string
+	var location string
+	var distance string
+
+	_, err := fmt.Scanln(&name, &location, &distance)
+	if err != nil {
+		log.Println("Unable to read stuff from the console")
+		return "", "", ""
+	}
+
+	return name, location, distance
 }
