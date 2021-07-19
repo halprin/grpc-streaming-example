@@ -26,6 +26,8 @@ func (receiver StreamServerImplementation) HelloWorld(stream pb.Stream_HelloWorl
 			return err
 		}
 
+		log.Println("Received a person from the client")
+
 		//grab the elements from the protobuf
 		personName := receivedPerson.GetName()
 		personLocation := receivedPerson.GetLocation()
@@ -52,6 +54,8 @@ func generateResponseMessage(name string, location string, distance int64) strin
 }
 
 func sendResponseToStream(stream pb.Stream_HelloWorldServer, message *pb.HelloMessage) error {
+	log.Println("Sending a message back to the client")
+
 	err := stream.Send(message)
 	if err != nil {
 		//something happened while trying to send a response
