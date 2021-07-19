@@ -10,4 +10,6 @@ To get ready, you install prereqs.
 1. `brew install protoc-gen-go-grpc`
 
 
-Create the protobuf service.  See `stream_service.proto`
+Create the protobuf service.  See `stream_service.proto`.
+
+Then you compile it using the make file.
