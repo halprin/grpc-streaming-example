@@ -12,6 +12,7 @@ import (
 )
 
 func main() {
+	//connect to the server listening on port 8000
 	dialOptions := []grpc.DialOption{
 		grpc.WithInsecure(),
 	}
@@ -21,8 +22,10 @@ func main() {
 	}
 	defer connection.Close()
 
+	//create a new client using the connection
 	client := pb.NewStreamClient(connection)
 
+	//call the HelloWorld endpoint to start the stream
 	stream, err := client.HelloWorld(context.Background())
 	if err != nil {
 		log.Fatal("Unable to establish HelloWorld stream")
@@ -38,7 +41,9 @@ func main() {
 }
 
 func streamListener(stream pb.Stream_HelloWorldClient) {
+	//loop forever
 	for {
+		//wait to receive a message from the server
 		receivedMessage, err := stream.Recv()
 		if err == io.EOF {
 			//the server closed the connection, so just return to finish this separate listener
@@ -56,6 +61,7 @@ func streamListener(stream pb.Stream_HelloWorldClient) {
 
 func continuallyReadPeople(stream pb.Stream_HelloWorldClient) error {
 	for {
+		//construct a person given the details provided on the console
 		person, err := getNextPerson()
 		if err != nil {
 			log.Println("Failed to get a person, done sending people")
@@ -64,12 +70,14 @@ func continuallyReadPeople(stream pb.Stream_HelloWorldClient) error {
 
 		log.Printf("Sending a person to the server: %s", person.String())
 
+		//send the person to the server via the stream some times
 		err = sendPersonDetails(stream, person)
 		if err != nil {
 			return err
 		}
 	}
 
+	//we're done sending people so close down the stream
 	log.Println("Closing down the sending of people")
 	err := stream.CloseSend()
 	if err != nil {
@@ -80,7 +88,7 @@ func continuallyReadPeople(stream pb.Stream_HelloWorldClient) error {
 }
 
 func sendPersonDetails(stream pb.Stream_HelloWorldClient, person *pb.People) error {
-	//send the person to the server 5 times
+	//send the person to the server 5 times and wait 10 seconds in between
 	for i := 0; i < 5; i++ {
 		log.Println("Sending...")
 		err := stream.Send(person)
@@ -96,6 +104,7 @@ func sendPersonDetails(stream pb.Stream_HelloWorldClient, person *pb.People) err
 }
 
 func getNextPerson() (*pb.People, error) {
+	//read strings from the console
 	personName, personLocation, personDistanceString, err := readDetailsFromConsole()
 	if err != nil {
 		return nil, err
@@ -106,6 +115,7 @@ func getNextPerson() (*pb.People, error) {
 		return nil, err
 	}
 
+	//construct the person from the provided strings/int64
 	return &pb.People{
 		Name:                 personName,
 		Location:             personLocation,
@@ -122,7 +132,7 @@ func readDetailsFromConsole() (string, string, string, error) {
 
 	_, err := fmt.Scanln(&name, &location, &distance)
 	if err != nil {
-		log.Println("Unable to read stuff from the console")
+		log.Println("Unable to read from the console")
 		return "", "", "", err
 	}
 

@@ -45,6 +45,7 @@ func (receiver StreamServerImplementation) HelloWorld(stream pb.Stream_HelloWorl
 			return err
 		}
 
+		//construct a second response and send it a bit later
 		secondResponseMessage := pb.HelloMessage{
 			Message: generateSecondResponseMessage(personName, personLocation, personDistanceToDc),
 		}
