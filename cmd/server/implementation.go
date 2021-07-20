@@ -45,12 +45,19 @@ func (receiver StreamServerImplementation) HelloWorld(stream pb.Stream_HelloWorl
 			return err
 		}
 
-		go waitAndSendResponse(stream, &responseMessage)
+		secondResponseMessage := pb.HelloMessage{
+			Message: generateSecondResponseMessage(personName, personLocation, personDistanceToDc),
+		}
+		go waitAndSendResponse(stream, &secondResponseMessage)
 	}
 }
 
 func generateResponseMessage(name string, location string, distance int64) string {
 	return fmt.Sprintf("Hello World, %s!  You are located in %s which is %d miles from Washington D.C.", name, location, distance)
+}
+
+func generateSecondResponseMessage(name string, location string, distance int64) string {
+	return fmt.Sprintf("Hello, %s?  Are you really in %s?  I don't believe that is %d miles from Washington D.C.", name, location, distance)
 }
 
 func sendResponseToStream(stream pb.Stream_HelloWorldServer, message *pb.HelloMessage) error {

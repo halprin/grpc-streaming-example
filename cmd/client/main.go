@@ -8,6 +8,7 @@ import (
 	"io"
 	"log"
 	"strconv"
+	"time"
 )
 
 func main() {
@@ -63,9 +64,8 @@ func continuallyReadPeople(stream pb.Stream_HelloWorldClient) error {
 
 		log.Printf("Sending a person to the server: %s", person.String())
 
-		err = stream.Send(person)
+		err = sendPersonDetails(stream, person)
 		if err != nil {
-			log.Println("Failed to send person to server")
 			return err
 		}
 	}
@@ -79,9 +79,21 @@ func continuallyReadPeople(stream pb.Stream_HelloWorldClient) error {
 	return nil
 }
 
-//func sendPersonDetails(stream pb.Stream_HelloWorldClient) error {
-//
-//}
+func sendPersonDetails(stream pb.Stream_HelloWorldClient, person *pb.People) error {
+	//send the person to the server 5 times
+	for i := 0; i < 5; i++ {
+		log.Println("Sending...")
+		err := stream.Send(person)
+		if err != nil {
+			log.Println("Failed to send person to server")
+			return err
+		}
+
+		time.Sleep(10 * time.Second)
+	}
+
+	return nil
+}
 
 func getNextPerson() (*pb.People, error) {
 	personName, personLocation, personDistanceString, err := readDetailsFromConsole()
