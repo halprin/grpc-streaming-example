@@ -16,7 +16,7 @@ func (receiver StreamServerImplementation) HelloWorld(stream pb.Stream_HelloWorl
 	for {
 		//repeatedly get a message from a client
 		receivedPerson, err := stream.Recv()
-		if err == io.EOF{
+		if err == io.EOF {
 			//the client is done and therefore so are we
 			log.Println("Client is done, wrapping up")
 			return nil
