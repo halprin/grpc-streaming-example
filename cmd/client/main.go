@@ -87,7 +87,7 @@ func continuallyReadPeople(stream pb.Stream_HelloWorldClient) error {
 	return nil
 }
 
-func sendPersonDetails(stream pb.Stream_HelloWorldClient, person *pb.People) error {
+func sendPersonDetails(stream pb.Stream_HelloWorldClient, person *pb.Person) error {
 	//send the person to the server 5 times and wait 10 seconds in between
 	for i := 0; i < 5; i++ {
 		log.Println("Sending...")
@@ -103,7 +103,7 @@ func sendPersonDetails(stream pb.Stream_HelloWorldClient, person *pb.People) err
 	return nil
 }
 
-func getNextPerson() (*pb.People, error) {
+func getNextPerson() (*pb.Person, error) {
 	//read strings from the console
 	personName, personLocation, personDistanceString, err := readDetailsFromConsole()
 	if err != nil {
@@ -116,7 +116,7 @@ func getNextPerson() (*pb.People, error) {
 	}
 
 	//construct the person from the provided strings/int64
-	return &pb.People{
+	return &pb.Person{
 		Name:                 personName,
 		Location:             personLocation,
 		DistanceWashingtonDc: personDistance,

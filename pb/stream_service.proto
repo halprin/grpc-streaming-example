@@ -3,10 +3,10 @@ syntax = "proto3";
 option go_package = "github.com/halprin/pb-streaming-example/pb";
 
 service Stream {
-    rpc HelloWorld(stream People) returns (stream HelloMessage) {}
+    rpc HelloWorld(stream Person) returns (stream HelloMessage) {}
 }
 
-message People {
+message Person {
     string name = 1;
     string location = 2;
     int64 distance_washington_dc = 3;
