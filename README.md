@@ -3,10 +3,13 @@ An example of gRPC streaming messages in Go.
 
 ## Prerequisites
 
-You need `protobuf`, `protoc-gen-go`, and `protoc-gen-go-grpc`.
+First, you need the [Go](https://golang.org) programming language.
 
-You can install these on the Mav via `brew`:
+In addition, you need the `protobuf`, `protoc-gen-go`, and `protoc-gen-go-grpc` utilities.
 
+You can install these on the Mac via `brew`:
+
+1. `brew install go`
 1. `brew install protobuf`
 1. `brew install protoc-gen-go`
 1. `brew install protoc-gen-go-grpc`
